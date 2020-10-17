@@ -1,0 +1,5 @@
+*.map
+*.s
+*.exe
+*.exe.stackdump
+.vscode/
