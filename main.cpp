@@ -9,7 +9,9 @@
 using namespace std;
 #define DEBUG 0
 
-#define GAME_CODE "GZ2E01"
+#define GAME_CODE "GZ2J01"
+
+#define EXTRA_OFFSET (GAME_CODE != "GZ2E01" ? 1 : 0)
 
 class Map {
    public:
@@ -71,7 +73,6 @@ int main() {
     Map map;
     char delimeter = ' ';
 
-    // load the map into class
     while (getline(file, str)) {
         vector<string> result = splitStrings(str, delimeter);
 
@@ -170,7 +171,6 @@ int main() {
 
     // write the lines
     while (getline(file2, str2)) {
-
         if (str2.substr(0, 4) == "func") {
             current_address = str2.substr(5, 8);
             string filename = (string)GAME_CODE + "/func_" + current_address + ".s";
@@ -204,66 +204,74 @@ int main() {
 
                 // instruction line
                 else {
-                    branch_func_start_position = str2.length() - 13;
+                    branch_func_start_position = str2.length() - 13 - EXTRA_OFFSET;
                     branch_func_check = str2.substr(branch_func_start_position, 5);
-                    branch_func_h_start_position = str2.length() - 16;
+                    // if (branch_func_check == "func_") {
+                    //     cout << str2 << endl;
+                    // }
+                    branch_func_h_start_position = str2.length() - 16 - EXTRA_OFFSET;
                     branch_func_h_check = str2.substr(branch_func_h_start_position, 5);
-                    branch_func_l_start_position = str2.length() - 15;
+                    branch_func_l_start_position = str2.length() - 15 - EXTRA_OFFSET;
                     branch_func_l_check = str2.substr(branch_func_l_start_position, 5);
-                    branch_lbl_start_position = str2.length() - 12;
+                    branch_lbl_start_position = str2.length() - 12 - EXTRA_OFFSET;
                     branch_lbl_check = str2.substr(branch_lbl_start_position, 4);
-                    branch_lbl_h_start_position = str2.length() - 15;
+                    branch_lbl_h_start_position = str2.length() - 15 - EXTRA_OFFSET;
                     branch_lbl_h_check = str2.substr(branch_lbl_h_start_position, 4);
-                    branch_lbl_l_start_position = str2.length() - 14;
+                    branch_lbl_l_start_position = str2.length() - 14 - EXTRA_OFFSET;
                     branch_lbl_l_check = str2.substr(branch_lbl_l_start_position, 4);
-                    branch_lbl_lr_position = str2.length() - 18;
+                    branch_lbl_lr_position = str2.length() - 18 - EXTRA_OFFSET;
                     branch_lbl_lr_check = str2.substr(branch_lbl_lr_position, 4);
-                    branch_lbl_lr2_position = str2.length() - 19;
+                    branch_lbl_lr2_position = str2.length() - 19 - EXTRA_OFFSET;
                     branch_lbl_lr2_check = str2.substr(branch_lbl_lr2_position, 4);
-                    branch_lbl_sda_base_position = str2.length() - 23;
+                    branch_lbl_sda_base_position = str2.length() - 23 - EXTRA_OFFSET;
                     branch_lbl_sda_base_check = str2.substr(branch_lbl_sda_base_position, 4);
-                    branch_lbl_sda2_base_position = str2.length() - 24;
+                    branch_lbl_sda2_base_position = str2.length() - 24 - EXTRA_OFFSET;
                     branch_lbl_sda2_base_check = str2.substr(branch_lbl_sda2_base_position, 4);
-                    branch_lbl_sda_base_operandr2_position = str2.length() - 28;
+                    branch_lbl_sda_base_operandr2_position = str2.length() - 28 - EXTRA_OFFSET;
                     branch_lbl_sda_base_operandr2_check = str2.substr(branch_lbl_sda_base_operandr2_position, 4);
-                    branch_lbl_sda_base_operandr13_position = str2.length() - 28;
+                    branch_lbl_sda_base_operandr13_position = str2.length() - 28 - EXTRA_OFFSET;
                     branch_lbl_sda_base_operandr13_check = str2.substr(branch_lbl_sda_base_operandr13_position, 4);
                     //cout << "TESTING:" << branch_lbl_sda_base_check << endl;
 
                     // rename branching instruction to appropriate symbol
                     if (branch_func_check == "func_") {
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_func_start_position - 20) << symbol_map[str2.substr(branch_func_start_position)] << endl;
+                        // str2.substr(20, 27)
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_func_start_position - 37) << symbol_map[str2.substr(branch_func_start_position,13)] << endl;
+                        // cout << symbol_map["func_80363008"] << endl;
+                        // cout << symbol_map[str2.substr(branch_func_start_position,13)] << endl;
+                        // cout << str2.substr(branch_func_start_position+1) << endl;
+                        // cout << str2.substr(branch_func_start_position).length() << endl;
                     } else if (branch_func_h_check == "func_") {
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_func_h_start_position - 20) << symbol_map[str2.substr(branch_func_h_start_position, 13)] << "@ha" << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_func_h_start_position - 37) << symbol_map[str2.substr(branch_func_h_start_position, 13)] << "@ha" << endl;
                     } else if (branch_func_l_check == "func_") {
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_func_l_start_position - 20) << symbol_map[str2.substr(branch_func_l_start_position, 13)] << "@l" << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_func_l_start_position - 37) << symbol_map[str2.substr(branch_func_l_start_position, 13)] << "@l" << endl;
                     } else if (branch_lbl_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_start_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_start_position - 37) << endl;
                     } else if (branch_lbl_h_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_h_start_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_h_start_position - 37) << endl;
                     } else if (branch_lbl_l_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_l_start_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_l_start_position - 37) << endl;
                     } else if (branch_lbl_sda_base_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_sda_base_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_sda_base_position - 37) << endl;
                     } else if (branch_lbl_sda2_base_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_sda2_base_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_sda2_base_position - 37) << endl;
                     } else if (branch_lbl_sda_base_operandr2_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_sda_base_operandr2_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_sda_base_operandr2_position - 37) << endl;
                     } else if (branch_lbl_sda_base_operandr13_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_sda_base_operandr13_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_sda_base_operandr13_position - 37) << endl;
                     } else if (branch_lbl_lr_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_lr_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_lr_position - 37) << endl;
                     } else if (branch_lbl_lr2_check == "lbl_") {
                         // need to add these back in after compare
-                        outfile << str2.substr(0, 3) << str2.substr(20, branch_lbl_lr2_position - 20) << endl;
+                        outfile << str2.substr(0, 3) << "  " + str2.substr(22, 2) + "          */ " << str2.substr(37, branch_lbl_lr2_position - 37) << endl;
                     } else {
                         //cout << str2.substr(0, 3) << str2.substr(20) << endl;
                         outfile << str2.substr(0, 3) << str2.substr(20) << endl;
@@ -282,7 +290,7 @@ int main() {
                 outfile << endl;
                 inFunctionFlag = false;
                 outfile.close();
-                outfile.clear(); 
+                outfile.clear();
             }
         }
     }
